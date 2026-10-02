@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Retro ROM Arcade</title>
+    <style>
+        :root {
+            --bg-color: #0f111a;
+            --card-bg: #1a1d2e;
+            --accent-color: #ff0055;
+            --text-color: #ffffff;
+            --text-dim: #8b92b5;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 1000px;
+        }
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+        }
+        p {
+            color: var(--text-dim);
+        }
+        .quick-links {
+            background: rgba(255, 0, 85, 0.1);
+            border: 1px solid var(--accent-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 960px;
+            box-sizing: border-box;
+        }
+        .quick-links h3 {
+            margin-top: 0;
+            color: var(--accent-color);
+        }
+        .quick-links ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .quick-links li {
+            margin-bottom: 8px;
+            color: var(--text-dim);
+        }
+        .quick-links a {
+            color: #00ffcc;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .quick-links a:hover {
+            text-decoration: underline;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 960px;
+        }
+        .file-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .custom-file-upload {
+            display: block;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            padding: 15px;
+            text-align: center;
+            border: 2px dashed var(--accent-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .custom-file-upload:hover {
+            background-color: rgba(255, 0, 85, 0.1);
+        }
+        select {
+            padding: 15px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        #arcade-container {
+            width: 100%;
+            max-width: 960px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .game-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 180px;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 0, 85, 0.3);
+            border-color: var(--accent-color);
+        }
+        .game-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+        .game-system {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        .play-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+        .play-btn:hover {
+            background-color: #cc0044;
+        }
+        #emulator-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: black;
+            z-index: 9999;
+            flex-direction: column;
+        }
+        .emu-header {
+            background-color: #111;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .close-btn {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            background-color: var(--accent-color);
+        }
+        #emu-frame {
+            flex: 1;
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>👾 My Retro ROM Arcade</h1>
+        <p>Drop your console ROM files below to instantly add them to your dashboard and play them inside your browser!</p>
+    </header>
+
+    <div class="quick-links">
+        <h3>🌐 Where to find free, legal ROMs & Homebrew:</h3>
+        <ul>
+            <li>Download public domain homebrew games safely at <strong><a href="https://itch.io/games/tag-homebrew" target="_blank">Itch.io Homebrew</a></strong> or the <strong><a href="https://archive.org/" target="_blank">Internet Archive</a></strong>.</li>
+            <li>Once you download a ROM file (like a <code>.gb</code>, <code>.nes</code>, or <code>.gba</code> file), use the installer below to load it into your library!</li>
+        </ul>
+    </div>
+
+    <div class="controls">
+        <div class="file-input-wrapper">
+            <label for="rom-file" class="custom-file-upload">
+                📂 Click here to add a ROM file from your computer
+            </label>
+            <input type="file" id="rom-file" accept=".nes,.gb,.gbc,.gba,.smsc,.gg,.gen,.bin">
+        </div>
+        <select id="system-select">
+            <option value="nes">Nintendo (NES)</option>
+            <option value="gb">Game Boy</option>
+            <option value="gbc">Game Boy Color</option>
+            <option value="gba">Game Boy Advance</option>
+            <option value="sega">Sega Genesis / Master System</option>
+        </select>
+    </div>
+
+    <div id="arcade-container">
+        <!-- Games will appear here dynamically -->
+    </div>
+
+    <div id="emulator-screen">
+        <div class="emu-header">
+            <span id="emu-title" style="font-weight: bold;">Playing Game</span>
+            <button class="close-btn" onclick="closeEmulator()">❌ Exit Game</button>
+        </div>
+        <iframe id="emu-frame" src=""></iframe>
+    </div>
+
+    <script>
+        const romFileInput = document.getElementById('rom-file');
+        const systemSelect = document.getElementById('system-select');
+        const arcadeContainer = document.getElementById('arcade-container');
+        const emulatorScreen = document.getElementById('emulator-screen');
+        const emuFrame = document.getElementById('emu-frame');
+        const emuTitle = document.getElementById('emu-title');
+
+        // Load saved library on launch
+        let gameLibrary = JSON.parse(localStorage.getItem('arcade_roms')) || [];
+        renderLibrary();
+
+        romFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const romDataUrl = evt.target.result;
+                const newGame = {
+                    id: Date.now(),
+                    title: file.name.replace(/\.[^/.]+$/, ""), // remove extension for title
+                    system: systemSelect.value,
+                    data: romDataUrl
+                };
+
+                gameLibrary.push(newGame);
+                localStorage.setItem('arcade_roms', JSON.stringify(gameLibrary));
+                renderLibrary();
+                romFileInput.value = ''; // Reset input
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function renderLibrary() {
+            arcadeContainer.innerHTML = '';
+            
+            if (gameLibrary.length === 0) {
+                arcadeContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 40px;">No games added yet. Drag or load a ROM file above to build your catalog!</div>';
+                return;
+            }
+
+            gameLibrary.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.innerHTML = `
+                    <div>
+                        <div class="game-title">${game.title}</div>
+                        <div class="game-system">${game.system}</div>
+                    </div>
+                    <button class="play-btn" onclick="playGame(${game.id})">▶ PLAY GAME</button>
+                `;
+                arcadeContainer.appendChild(card);
+            });
+        }
+
+        function playGame(id) {
+            const game = gameLibrary.find(g => g.id === id);
+            if (!game) return;
+
+            // We open a web-based emulator player via a secure sandbox provider (EmulatorJS wrapper)
+            // To make this fully local, we use a public emulator web core configuration
+            let systemCore = game.system;
+            
+            // Set title
+            emuTitle.textContent = `Playing: ${game.title} (${systemCore.toUpperCase()})`;
+            
+            // Build the EmulatorJS embed URL structure using a safe dynamic constructor
+            // Note: Since data URLs can be heavy, we temporarily cache it in sessionStorage for the iframe to read
+            try {
+                sessionStorage.setItem('current_rom', game.data);
+                sessionStorage.setItem('current_system', systemCore);
+                
+                // Open full screen emulator container
+                emulatorScreen.style.display = 'flex';
+                
+                // Point iframe to a lightweight inline player helper
+                const blobContent = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <script>
+                            window.EmuJS = {
+                                Core: "${systemCore}",
+                                RomUrl: sessionStorage.getItem('current_rom'),
+                                PlaceHolder: true
+                            };
+                        <\/script>
+                        <script src="https://cdn.jsdelivr.net/gh/ethanaflynn/emulatorjs@main/embed.js"><\/script>
+                        <style>body,html{margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hidden;}</style>
+                    </head>
+                    <body>
+                        <div style="width:100%;height:100%;" id="game"></div>
+                    </body>
+                    </html>
+                `;
+                
+                const blob = new Blob([blobContent], { type: 'text/html' });
+                emuFrame.src = URL.createObjectURL(blob);
+            } catch (err) {
+                alert("Error loading ROM layout: " + err.message);
+            }
+        }
+
+        function closeEmulator() {
+            emulatorScreen.style.display = 'none';
+            emuFrame.src = '';
+            sessionStorage.removeItem('current_rom');
+            sessionStorage.removeItem('current_system');
+        }
+    </script>
+</body>
+</html>
